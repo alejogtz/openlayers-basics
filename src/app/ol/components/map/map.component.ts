@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import Map from 'ol/Map';
-import View from 'ol/View';
+import View, { FitOptions } from 'ol/View';
 
 // Layers
 import Layer from 'ol/layer/Layer';
@@ -31,6 +31,11 @@ import Fill from 'ol/style/Fill';
 
 // Others
 import { createXYZ } from 'ol/tilegrid';
+import { Pixel } from 'ol/pixel';
+import VectorLayer from 'ol/layer/Vector';
+import Geometry from 'ol/geom/Geometry';
+import { MapBrowserEvent, Feature } from 'ol';
+import Point from 'ol/geom/Point';
 
 @Component({
   selector: 'app-map',
@@ -57,27 +62,29 @@ export class MapComponent implements AfterViewInit {
     // View 
     const view = new View({
       center,
-      zoom: 3,
+      zoom: 10,
       maxZoom: 20,
       minZoom: 0
     });
 
-    // -------------------------------- Layers ----------------------------------
+    // -------------------------------- Layers -----------------------------------------------------------------
+
 
     const simpleWMS = new ImageLayer({
       opacity: 0.6,
       source: new ImageWMS({
         url: 'http://187.189.192.102:8080/geoserver/wms',
         params: {
-          LAYERS: 'GDB08:asentamientos',
+          LAYERS: 'topp:states',
           VERSION: '1.3.0',
           FORMAT: 'image/png',
-          TILED: 'true'
+          TILED: 'true',
+          COLOR: '#ffffff'
         },
       }),
-      visible: true
     });
     simpleWMS.set('name', 'USA layer from Geoserver WMS demo');
+
 
     const layerVms = new TileLayer({
       source: new TileWMS({
@@ -101,24 +108,15 @@ export class MapComponent implements AfterViewInit {
       source: new OSM({
         url: 'http://a.tile.stamen.com/terrain/{z}/{x}/{y}.png'
       }),
-      visible: false
     });
 
     let stamenLayer: Layer = new TileLayer({
       source: new Stamen({
-        layer: 'terrain'
+        layer: 'toner'
       }),
-      visible: true
     });
 
-    // ------------------------- End Layers ------------------------------
-
-    const basesLayers: LayerGroup = new LayerGroup({
-      layers: [simpleOsm, stamenLayer, simpleWMS]
-    });
-
-
-    // -------------------- Vector ---------------------------------------
+    // -------------------- Vector ---------------------------------------------------------------------------------
 
     const _style = new Style({
       fill: new Fill({
@@ -126,17 +124,29 @@ export class MapComponent implements AfterViewInit {
       })
     });
 
-    const vectorLayer = new VectorImage({
+    const vectorLayer = new VectorLayer({
       source: new Vector({
         url: './assets/file2.json',
-        format: new GeoJSON()
+        format: new GeoJSON(),
+        useSpatialIndex: false
       }),
       style: _style,
-      visible: true
     });
 
-    // ------------------- End Vector ---------------------
+    // ------------------- End Vector ------------------------------------------------------------------------------
 
+
+    const basesLayers: LayerGroup = new LayerGroup({
+      layers: [layerVms, simpleOsm, stamenLayer, simpleWMS, vectorLayer]
+    });
+
+
+    simpleOsm.setVisible(true);
+    simpleWMS.setVisible(true);
+
+    layerVms.setVisible(false);
+    stamenLayer.setVisible(false);
+    vectorLayer.setVisible(true);
 
     this.map = new Map({
       layers: basesLayers,
@@ -144,9 +154,17 @@ export class MapComponent implements AfterViewInit {
       view
     });
 
-    //this.map.addLayer(layerVms);
 
-    // this.map.addLayer(vectorLayer);
+
+    view.fit( [ -11733083.841774555, 3181920.6134553165, -11685692.884237746, 3233286.2964629545 ] , {maxZoom: 11})
+
+
+    console.log(vectorLayer.getSource());
+
+    //console.log( vectorLayer.getSource().getFeatures().length );
+
+    // console.log( vectorLayer.getSource().getFeaturesCollection().getArray() );
+
   }
 
 }
