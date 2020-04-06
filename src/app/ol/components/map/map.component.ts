@@ -36,6 +36,7 @@ import VectorLayer from 'ol/layer/Vector';
 import Geometry from 'ol/geom/Geometry';
 import { MapBrowserEvent, Feature } from 'ol';
 import Point from 'ol/geom/Point';
+import { Extent } from 'ol/extent';
 
 @Component({
   selector: 'app-map',
@@ -155,15 +156,15 @@ export class MapComponent implements AfterViewInit {
     });
 
 
+    // tslint:disable-next-line: only-arrow-functions
+    this.map.on('click' , function( event: MapBrowserEvent){
+      console.log(vectorLayer.getSource().getFeaturesCollection().getArray()[0].getGeometry().getExtent() );
 
-    view.fit( [ -11733083.841774555, 3181920.6134553165, -11685692.884237746, 3233286.2964629545 ] , {maxZoom: 11})
+      const extent: Extent = vectorLayer.getSource().getFeaturesCollection().getArray()[0].getGeometry().getExtent();
 
+      view.fit( extent , {maxZoom: 11});
 
-    console.log(vectorLayer.getSource());
-
-    //console.log( vectorLayer.getSource().getFeatures().length );
-
-    // console.log( vectorLayer.getSource().getFeaturesCollection().getArray() );
+    });
 
   }
 
