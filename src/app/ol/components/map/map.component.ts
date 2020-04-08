@@ -10,7 +10,7 @@ import LayerGroup from 'ol/layer/Group';
 import ImageLayer from 'ol/layer/Image';
 
 
-//Sources
+// Sources
 import OSM from 'ol/source/OSM';
 import Stamen from 'ol/source/Stamen';
 import TileWMS from 'ol/source/TileWMS';
@@ -19,7 +19,7 @@ import ImageWMS from 'ol/source/ImageWMS';
 
 
 // Projections
-import { transform } from 'ol/proj';
+import { transform, transformExtent } from 'ol/proj';
 
 // Formats
 import GeoJSON from 'ol/format/GeoJSON';
@@ -36,7 +36,10 @@ import VectorLayer from 'ol/layer/Vector';
 import Geometry from 'ol/geom/Geometry';
 import { MapBrowserEvent, Feature } from 'ol';
 import Point from 'ol/geom/Point';
-import { Extent } from 'ol/extent';
+import { Extent, createEmpty, extend } from 'ol/extent';
+import VectorSource from 'ol/source/Vector';
+import { mapToMapExpression } from '@angular/compiler/src/render3/util';
+import { Size } from 'ol/size';
 
 @Component({
   selector: 'app-map',
@@ -60,93 +63,106 @@ export class MapComponent implements AfterViewInit {
     const center = transform([-105.167, 27.667], 'EPSG:4326', 'EPSG:3857');
 
 
-    // View 
+    // View
     const view = new View({
       center,
       zoom: 10,
       maxZoom: 20,
-      minZoom: 0
+      minZoom: 0,
+      projection: '32614'
+    });
+    // -------------------------------- Sources ------------------------------------------------------------------
+
+    const sourceImageWMS: ImageWMS =  new ImageWMS ({
+      url: 'http://187.189.192.102:8080/geoserver/wms',
+      params: {
+        LAYERS: 'topp:states',
+        VERSION: '1.3.0',
+        FORMAT: 'image/png',
+        TILED: 'true',
+        COLOR: '#ffffff'
+      }
     });
 
-    // -------------------------------- Layers -----------------------------------------------------------------
-
-
-    const simpleWMS = new ImageLayer({
-      opacity: 0.6,
-      source: new ImageWMS({
-        url: 'http://187.189.192.102:8080/geoserver/wms',
-        params: {
-          LAYERS: 'topp:states',
-          VERSION: '1.3.0',
-          FORMAT: 'image/png',
-          TILED: 'true',
-          COLOR: '#ffffff'
-        },
-      }),
-    });
-    simpleWMS.set('name', 'USA layer from Geoserver WMS demo');
-
-
-    const layerVms = new TileLayer({
-      source: new TileWMS({
-        url: 'http://187.189.192.102:8080/geoserver/GDB08011/wms',
-        params: {
-          LAYERS: 'GDB08011:p',
-          VERSION: '1.1.1',
-          FORMAT: 'image/png',
-          TILED: 'true',
-        },
-        serverType: 'geoserver',
+    const sourceTileWMS =  new TileWMS({
+      url: 'http://187.189.192.102:8080/geoserver/GDB08011/wms',
+      params: {
+        LAYERS: 'GDB08011:p',
+        VERSION: '1.1.1',
+        FORMAT: 'image/png',
+        TILED: 'true',
+      },
+      serverType: 'geoserver',
         // Countries have transparency, so do not fade tiles:
         transition: 0,
         tileGrid: createXYZ({ extent: [-13884991, 2870341, -7455066, 6338219] })
         , projection: 'EPSG:900913'
+     });
 
-      })
+     // ---- bases layers -----
+    const sourceStamen = new Stamen({ layer: 'toner'  });
+
+    // -----vector sources ----
+    const sourceVector =  new VectorSource({
+      url: 'http://187.189.192.102:8080/geoserver/GDB08011/ows?' +
+      'service=WFS&' +
+      'version=1.1.0&' +
+      'request=GetFeature&' +
+      'typename=GDB08011:p&' +
+      'maxFeatures=1&' +
+      "&CQL_FILTER=cve_cat_ori='1005006006'&" +
+      'outputFormat=application/json',
+      format: new GeoJSON({featureProjection: 'EPSG:32613' }),
+      useSpatialIndex: false,
     });
 
-    let simpleOsm: Layer = new TileLayer({
-      source: new OSM({
-        url: 'http://a.tile.stamen.com/terrain/{z}/{x}/{y}.png'
-      }),
-    });
 
-    let stamenLayer: Layer = new TileLayer({
-      source: new Stamen({
-        layer: 'toner'
-      }),
-    });
+
+    // -------------------------------- Layers -----------------------------------------------------------------
+    const simpleWMS = new ImageLayer({opacity: 0.6, source: sourceImageWMS });
+    simpleWMS.set('name', 'USA layer from Geoserver WMS demo');
+
+
+    const layerVms = new TileLayer({ source: sourceTileWMS });
+
+    const simpleOsm: Layer = new TileLayer({ source:
+      new OSM({ url: 'http://a.tile.stamen.com/terrain/{z}/{x}/{y}.png' }), });
+
+    const stamenLayer: Layer = new TileLayer({source: sourceStamen, });
 
     // -------------------- Vector ---------------------------------------------------------------------------------
 
     const _style = new Style({
       fill: new Fill({
         color: '#00FFF3',
-      })
+      }),
+      stroke: new Stroke({
+        color: '#00FFF3',
+        width: 3
+      }),
     });
 
     const vectorLayer = new VectorLayer({
-      source: new Vector({
-        url: './assets/file2.json',
-        format: new GeoJSON(),
-        useSpatialIndex: false
-      }),
+      source: sourceVector,
       style: _style,
+    
     });
 
     // ------------------- End Vector ------------------------------------------------------------------------------
 
 
     const basesLayers: LayerGroup = new LayerGroup({
-      layers: [layerVms, simpleOsm, stamenLayer, simpleWMS, vectorLayer]
+      layers: [simpleOsm, layerVms, vectorLayer]
     });
 
 
-    simpleOsm.setVisible(true);
-    simpleWMS.setVisible(true);
-
-    layerVms.setVisible(false);
+    // maps
+    simpleOsm.setVisible(true); //
     stamenLayer.setVisible(false);
+
+    simpleWMS.setVisible(true); // countries top::usa
+
+    layerVms.setVisible(true);
     vectorLayer.setVisible(true);
 
     this.map = new Map({
@@ -156,13 +172,36 @@ export class MapComponent implements AfterViewInit {
     });
 
 
+    const mapSize: Size = this.map.getSize();
+
     // tslint:disable-next-line: only-arrow-functions
-    this.map.on('click' , function( event: MapBrowserEvent){
-      console.log(vectorLayer.getSource().getFeaturesCollection().getArray()[0].getGeometry().getExtent() );
+    this.map.on('click' , function( event: MapBrowserEvent) {
+      // console.log(vectorLayer.getSource().getFeaturesCollection().getArray()[0].getGeometry().getExtent() );
 
       const extent: Extent = vectorLayer.getSource().getFeaturesCollection().getArray()[0].getGeometry().getExtent();
 
-      view.fit( extent , {maxZoom: 11});
+      // Try to zoom to multiple extent
+
+      const extentMultiple: Extent = createEmpty();
+
+
+      sourceVector.getFeaturesCollection().forEach(
+        (feature: Feature<Geometry>) =>  extend(extentMultiple, feature.getGeometry().getExtent()));
+
+
+      // const extentOfAllFeatures = vectorLayer.getSource().getExtent();
+
+      // console.log(this.map.getProperties());
+
+      // console.log( view.getProjection() );
+
+      console.log(vectorLayer);
+
+      transformExtent(extentMultiple, 'EPSG:4326', 'EPSG:3857');
+
+      // console.log( sourceVector.getFeaturesCollection().getArray()[0].getProperties() );
+
+      view.fit( extentMultiple ,{ maxZoom: 21 , size: mapSize} );
 
     });
 
