@@ -7,6 +7,8 @@ import { Size } from 'ol/size';
 import TileGrid from 'ol/tilegrid/TileGrid';
 import { LoadFunction, UrlFunction } from 'ol/Tile';
 import XYZ from 'ol/source/XYZ';
+import { TileGridComponent } from '../tilegrid.component';
+import { LayerTileComponent } from '../layer/layertile.component';
 
 @Component({
     selector: 'aol-source-xyz',
@@ -45,7 +47,7 @@ export class SourceXYZComponent extends SourceComponent
         if (this.tileGridXYZ) {
             this.tileGrid = this.tileGridXYZ.instance;
         }
-        this.instance = new source.XYZ(this);
+        this.instance = new XYZ(this);
         this._register(this.instance);
     }
 
@@ -63,7 +65,7 @@ export class SourceXYZComponent extends SourceComponent
 
         this.instance.setProperties(properties, false);
         if (changes.hasOwnProperty('url')) {
-            this.instance = new source.XYZ(this);
+            this.instance = new XYZ(this);
             this._register(this.instance);
         }
     }

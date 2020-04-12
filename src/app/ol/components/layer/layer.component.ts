@@ -5,7 +5,7 @@ import { LayerGroupComponent } from './layergroup.component';
 import Layer from 'ol/layer/Layer';
 
 export abstract class LayerComponent implements OnInit, OnChanges, OnDestroy {
-  public instance: Layer;
+  public instance: any;
   public componentType: string = 'layer';
 
   @Input() opacity: number;
@@ -16,7 +16,7 @@ export abstract class LayerComponent implements OnInit, OnChanges, OnDestroy {
   @Input() maxResolution: number;
 
   @Input() precompose: (evt: Event) => void;
-  @Input() postcompose: (evt:Event) => void;
+  @Input() postcompose: (evt: Event) => void;
 
   constructor(protected host: LayerGroupComponent | MapComponent) {
   }
