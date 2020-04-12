@@ -86,8 +86,8 @@ export class MapComponent implements AfterViewInit {
 
   // tslint:disable-next-line: align
   loadInteraction(): void {
-    let continuePolygonMsg: string = 'Click to continue drawing the polygon';
-    let continueLineMsg: string = 'Click to continue drawing the line';
+    this.continuePolygonMsg = 'Click to continue drawing the polygon';
+    this.continueLineMsg = 'Click to continue drawing the line';
 
     this.source = new VectorSource();
 
@@ -104,16 +104,18 @@ export class MapComponent implements AfterViewInit {
       })
     });
 
-    this.map.on('pointermove', this.pointerMoveHandler);
-
     this.createMeasureTooltip();
     this.createHelpTooltip();
+
+
+    this.addEventOnToMap();
+
 
     this.map.getViewport().addEventListener('mouseout', () => {
       this.helpTooltipElement.classList.add('hidden');
     });
 
-    this.typeSelect.onchange = () =>{
+    this.typeSelect.onchange = () => {
       this.map.removeInteraction(this.draw);
       this.addInteraction();
     };
@@ -150,7 +152,9 @@ export class MapComponent implements AfterViewInit {
         this.sketch = evt.feature;
 
         /** @type {import("../src/ol/coordinate.js").Coordinate|undefined} */
-        // let tooltipCoord = evt.getCoordinates();
+        // let tooltipCoord = evt.target();
+
+        // console.log (evt.target.);
 
         listener = this.sketch.getGeometry().on('change', (evt: BaseEvent) => {
           let geom = evt.target;
@@ -188,26 +192,35 @@ export class MapComponent implements AfterViewInit {
   }
 
 
-  pointerMoveHandler(evt: MapBrowserEvent): void {
-    if (evt.dragging) {
-      return;
-    }
-    let helpMsg = 'Click to start drawing';
 
-    if (this.sketch) {
-      const geom: Geometry = this.sketch.getGeometry();
-      if (geom instanceof Polygon) {
-        helpMsg = this.continuePolygonMsg;
-      } else if (geom instanceof LineString) {
-        helpMsg = this.continueLineMsg;
+  addEventOnToMap(): void {
+
+    this.map.on('pointermove',
+      (evt: MapBrowserEvent) => {
+
+        if (evt.dragging) {
+          return;
+        }
+        let helpMsg = 'Click to start drawing';
+
+        if (this.sketch) {
+          const geom: Geometry = this.sketch.getGeometry();
+          if (geom instanceof Polygon) {
+            helpMsg = this.continuePolygonMsg;
+          } else if (geom instanceof LineString) {
+            helpMsg = this.continueLineMsg;
+          }
+        }
+
+
+        // console.log(helpMsg);
+        this.helpTooltipElement.innerHTML = helpMsg;
+        this.helpTooltip.setPosition(evt.coordinate);
+        this.helpTooltipElement.classList.remove('hidden');
+
       }
-    }
+    );
 
-
-    console.log(helpMsg);
-    //this.helpTooltipElement.innerHTML = helpMsg;
-    //this.helpTooltip.setPosition(evt.coordinate);
-    //this.helpTooltipElement.classList.remove('hidden');
   }
 
   /**
@@ -254,6 +267,7 @@ export class MapComponent implements AfterViewInit {
     if (this.helpTooltipElement) {
       this.helpTooltipElement.parentNode.removeChild(this.helpTooltipElement);
     }
+
     this.helpTooltipElement = document.createElement('div');
     this.helpTooltipElement.className = 'ol-tooltip hidden';
     this.helpTooltip = new Overlay({
@@ -262,8 +276,6 @@ export class MapComponent implements AfterViewInit {
       positioning: OverlayPositioning.CENTER_LEFT
     });
     this.map.addOverlay(this.helpTooltip);
-
-    console.log(this.helpTooltipElement);
   }
 
 
