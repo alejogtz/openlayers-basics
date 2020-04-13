@@ -2,24 +2,20 @@ import {
     Component, OnDestroy, OnInit, Input, Optional, OnChanges,
     SimpleChanges
   } from '@angular/core';
-  //import { source } from 'openlayers';
-  import source from 'ol/source/Source';
-  import layer from 'ol/layer/Layer';
-  import TileSource from 'ol/source/Tile';
+  //import { layer, source } from 'openlayers';
   import { MapComponent } from '../map.component';
   import { LayerComponent } from './layer.component';
   import { LayerGroupComponent } from './layergroup.component';
-  import TileLayer from 'ol/layer/Tile';
-  
+  import VectorSource from 'ol/source/Vector';
+  import VectorLayer from 'ol/layer/Vector';
   @Component({
-    selector: 'aol-layer-tile',
+    selector: 'aol-layer-vector',
     template: `<ng-content></ng-content>`
   })
-  export class LayerTileComponent extends LayerComponent implements OnInit, OnDestroy, OnChanges {
-    public source:TileSource;
+  export class LayerVectorComponent extends LayerComponent implements OnInit, OnDestroy, OnChanges {
+    public source: VectorSource;
   
-    @Input() preload?: number;
-    @Input() useInterimTilesOnError?: boolean;
+    @Input() renderBuffer?: number;
   
     constructor(map: MapComponent,
                 @Optional() group?: LayerGroupComponent) {
@@ -27,8 +23,8 @@ import {
     }
   
     ngOnInit() {
-      // console.log('creating ol.layer.Tile instance with:', this);
-      this.instance = new TileLayer(this);
+      // console.log('creating ol.layer.Vector instance with:', this);
+      this.instance = new VectorLayer(this);
       super.ngOnInit();
     }
   

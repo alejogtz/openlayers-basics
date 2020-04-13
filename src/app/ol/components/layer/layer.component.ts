@@ -1,22 +1,25 @@
-import { OnInit, OnChanges, OnDestroy, Input, SimpleChanges } from '@angular/core';
-import { Extent } from 'ol/extent';
+import { OnDestroy, OnInit, OnChanges, Input, SimpleChanges } from '@angular/core';
+
+
+import {Extent} from 'ol/extent';
+import layer from 'ol/layer/Layer';
 import { MapComponent } from '../map.component';
 import { LayerGroupComponent } from './layergroup.component';
-import Layer from 'ol/layer/Layer';
+import {EventsKey} from 'ol/events';
 
 export abstract class LayerComponent implements OnInit, OnChanges, OnDestroy {
   public instance: any;
   public componentType: string = 'layer';
 
-  @Input() opacity: number;
-  @Input() visible: boolean;
-  @Input() extent:	Extent;
-  @Input() zIndex:	number;
-  @Input() minResolution: number;
-  @Input() maxResolution: number;
+  @Input() opacity?: number;
+  @Input() visible?: boolean;
+  @Input() extent?:	Extent;
+  @Input() zIndex?:	number;
+  @Input() minResolution?: number;
+  @Input() maxResolution?: number;
 
-  @Input() precompose: (evt: Event) => void;
-  @Input() postcompose: (evt: Event) => void;
+  @Input() precompose?: (evt: EventsKey) => void;
+  @Input() postcompose?: (evt: EventsKey) => void;
 
   constructor(protected host: LayerGroupComponent | MapComponent) {
   }
