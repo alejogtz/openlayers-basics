@@ -11,17 +11,15 @@ export class MapComponent implements AfterViewInit {
   @ViewChild('map') containerMap: ElementRef;
 
 
-  constructor() { }
+  constructor(private mapFacade: MapService) { }
 
   ngAfterViewInit(): void {
 
-    let mapFacade: MapService = new MapService();
+    this.mapFacade.setMapTarjet( this.containerMap.nativeElement );
 
-    mapFacade.setMapTarjet( this.containerMap.nativeElement );
+    this.mapFacade.buildMap();
 
-    mapFacade.buildMap();
-
-    mapFacade.setVisibleBaseLayer(1);
+    this.mapFacade.setVisibleBaseLayer(1);
   }
 
 
