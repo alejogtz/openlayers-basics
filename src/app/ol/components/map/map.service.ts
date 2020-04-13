@@ -17,10 +17,10 @@ import Stroke from 'ol/style/Stroke';
 import GeoJSON from 'ol/format/GeoJSON';
 
 import { HttpClient } from '@angular/common/http';
-import { Observable, Feature } from 'ol';
-import BaseEvent from 'ol/events/Event';
+import { Feature } from 'ol';
 import Geometry from 'ol/geom/Geometry';
 import { Extent } from 'ol/extent';
+
 @Injectable()
 export class MapService {
 
@@ -46,11 +46,10 @@ export class MapService {
 
 
     constructor(private http: HttpClient) {
-        this.instance = new Map({ layers: [] });
-
+        this.instance = new Map({});
     }
 
-    buildMap(): Map {
+    buildMap(): void {
         // View
         const center = transform([-105.167, 27.667], 'EPSG:4326', 'EPSG:3857');
 
@@ -61,11 +60,10 @@ export class MapService {
 
         this.instance.addLayer(this.tileBaseLayers);
         this.instance.addLayer(this.tileLayersFromSuac);
-        this.instance.addLayer(this.propertyVectorLayer);
-        this.instance.addLayer(this.measureLayer);
+        //this.instance.addLayer(this.propertyVectorLayer);
+        //this.instance.addLayer(this.measureLayer);
 
 
-        return this.instance;
     }
 
 
@@ -87,16 +85,16 @@ export class MapService {
         stamen.setVisible(false);
 
         // Tile Layers from SUAC
-        const localities_source = new TileWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08011/wms',
+        let localities_source = new TileWMS({
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
             params: {
                 LAYERS: 'GDB08:localidades', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
             serverType: 'geoserver',
         });
 
-        const blocks_source = new TileWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08011/wms',
+        let blocks_source = new TileWMS({
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
             params: {
                 LAYERS: 'GDB08:manzanas', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -104,7 +102,7 @@ export class MapService {
         });
 
 
-        const properties_source = new TileWMS({
+        let properties_source = new TileWMS({
             url: 'http://187.189.192.102:8080/geoserver/GDB08011/wms',
             params: {
                 LAYERS: 'GDB08011:p', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
@@ -112,17 +110,19 @@ export class MapService {
             serverType: 'geoserver',
         });
 
-        const localities_layer = new TileLayer({ source: localities_source });
-        const blocks_layer = new TileLayer({ source: blocks_source });
-        const properties_layer = new TileLayer({ source: properties_source });
+        let localities_layer = new TileLayer({ source: localities_source });
+        let blocks_layer = new TileLayer({ source: blocks_source });
+        let properties_layer = new TileLayer({ source: properties_source });
 
         this.tileLayersFromSuac = new LayerGroup({ layers: [localities_layer, blocks_layer, properties_layer] });
+
+
 
     }
 
 
     loadMeasureInteraction() {
-        this.source = new VectorSource();
+        this.measureSource = new VectorSource();
     }
 
     private loadVectorLayers(): void {
@@ -148,7 +148,7 @@ export class MapService {
 
 
     searchAndZoomToProperty(cta_orig_property: string): void {
-        let url: string = 'http://187.189.192.102:8080/geoserver/GDB08011/ows?' +
+        let url = 'http://187.189.192.102:8080/geoserver/GDB08011/ows?' +
             'service=WFS&' +
             'version=1.1.0&' +
             'request=GetFeature&' +
@@ -205,9 +205,5 @@ export class MapService {
         this.tileLayersFromSuac.getLayers().getArray()[position].setVisible( !isVisible );
     }
 
-
-    printTarjet(): void {
-        console.log(this.instance.getTarget());
-    }
 
 }

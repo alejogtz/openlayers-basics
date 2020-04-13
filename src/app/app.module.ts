@@ -14,16 +14,12 @@ import { HttpClientModule } from '@angular/common/http';
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent
+    MapComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    BrowserAnimationsModule,
-    MatButtonModule,
-    MatSliderModule,
-    HttpClientModule,
-    
+    HttpClientModule
   ],
   providers: [MapService],
   bootstrap: [AppComponent]
