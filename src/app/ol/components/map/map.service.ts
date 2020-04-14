@@ -53,7 +53,7 @@ export class MapService {
         // View
         const center = transform([-105.167, 27.667], 'EPSG:4326', 'EPSG:3857');
 
-        this.view = new View({ center, maxZoom: 15, minZoom: 8 });
+        this.view = new View({ center, zoom: 10, maxZoom: 15, minZoom: 8 });
         this.instance.setView(this.view);
 
         this.loadTileLayers();
