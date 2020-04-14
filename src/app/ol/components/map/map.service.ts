@@ -53,14 +53,16 @@ export class MapService {
         // View
         const center = transform([-105.167, 27.667], 'EPSG:4326', 'EPSG:3857');
 
-        this.view = new View({ center, zoom: 10, maxZoom: 15, minZoom: 8 });
+        this.view = new View({ center, zoom: 10, maxZoom: 20, minZoom: 8 });
         this.instance.setView(this.view);
 
         this.loadTileLayers();
 
         this.instance.addLayer(this.tileBaseLayers);
         this.instance.addLayer(this.tileLayersFromSuac);
-        //this.instance.addLayer(this.propertyVectorLayer);
+
+        this.loadVectorLayers()
+        this.instance.addLayer(this.propertyVectorLayer);
         //this.instance.addLayer(this.measureLayer);
 
 
@@ -131,7 +133,7 @@ export class MapService {
         let stroke: Stroke = new Stroke({ color: '#ffcc33', width: 2 });
 
         // Vector
-        this.propertyVectorSource = new VectorSource();
+        this.propertyVectorSource = new VectorSource({ useSpatialIndex: false, format: new GeoJSON() });
 
         this.propertyVectorLayer = new VectorLayer({
             source: this.propertyVectorSource,
@@ -154,9 +156,9 @@ export class MapService {
             'request=GetFeature&' +
             'typename=GDB08011:p&' +
             'maxFeatures=1&' +
-            "&CQL_FILTER=cve_cat_ori=' " + cta_orig_property + "'&" + // ej. cta_orig_property: 1005006006
+            "&CQL_FILTER=cve_cat_ori='" + cta_orig_property + "'&" + // ej. cta_orig_property: 1005006006
             'outputFormat=application/json&' +
-            'srsname=3857';
+            'srsname=EPSG:3857';
 
         this.propertyVectorSource.clear(true);
 
@@ -166,16 +168,21 @@ export class MapService {
             new GeoJSON().readFeatures(response).forEach(
                 (feature: Feature<Geometry>, index: number, features: Feature<Geometry>[]) => {
                     this.propertyVectorSource.addFeature(feature);
+
+                    console.log(response);
                 });
 
             // Zoom to property
-            if (!this.propertyVectorSource.isEmpty()) {
+            if (this.propertyVectorSource.getFeatures().length > 0) {
+                console.log('Zoom');
                 const extent: Extent = this.propertyVectorSource.
                     getFeaturesCollection().getArray()[0].getGeometry().getExtent();
 
                 this.view.fit(extent, { maxZoom: this.MAX_ZOOM_FIT_VIEW });
 
-            } else{
+
+
+            } else {
                 alert('No se encontré algún Predio con ese Numero');
             }
         });
@@ -194,7 +201,7 @@ export class MapService {
         this.tileBaseLayers.getLayers().forEach(
             // tslint:disable-next-line: no-shadowed-variable
             (layer: BaseLayer, pos: number, p2: BaseLayer[]) => {
-                layer.setVisible( position === pos );
+                layer.setVisible(position === pos);
             }
         );
     }
@@ -202,7 +209,7 @@ export class MapService {
     toggleVisibleSUACLayer(position: number): void {
         let isVisible = this.tileLayersFromSuac.getLayers().getArray()[position].getVisible();
 
-        this.tileLayersFromSuac.getLayers().getArray()[position].setVisible( !isVisible );
+        this.tileLayersFromSuac.getLayers().getArray()[position].setVisible(!isVisible);
     }
 
 

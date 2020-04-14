@@ -21,6 +21,8 @@ export class MapComponent implements AfterViewInit {
     this.mapFacade.buildMap();
 
     this.mapFacade.setVisibleBaseLayer(1);
+
+    this.mapFacade.searchAndZoomToProperty('1005006006');
   }
 
 
