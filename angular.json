@@ -123,5 +123,8 @@
       }
     }
   },
-  "defaultProject": "v3angular-ol"
+  "defaultProject": "v3angular-ol",
+  "cli": {
+    "analytics": false
+  }
 }

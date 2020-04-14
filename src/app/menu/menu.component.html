@@ -1,0 +1,63 @@
+<div class="wrapper">
+    <!-- Sidebar  -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3>Sistema Catastral</h3>
+        </div>
+
+        <ul class="list-unstyled components">
+
+            <li>
+                <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle" aria-controls="collapse30" data-parent="#accordionEx5">Layers</a>
+                <ul class="collapse list-unstyled" id="homeSubmenu">
+                    <li style="margin-left: 50px;">
+                        <input type="radio" class="OSM" name="gender" value="OSM">
+                        <label for="OSM">OSM</label><br>
+                        <input type="radio" id="Terrain" name="gender" value="Terrain">
+                        <label for="Terrain">Terrain</label><br>
+                        <input type="radio" id="Stamen" name="gender" value="Stamen">
+                        <label for="Stamen">Stamen</label>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Capas</a>
+                <ul class="collapse list-unstyled" id="pageSubmenu">
+                    <li style="margin-left: 50px;">
+                        <input type="checkbox" id="Vialidad" name="Vialidad" value="Vialidad">
+                        <label for="Vialidad"> Vialidad</label><br>
+                        <input type="checkbox" id="Manzanas" name="Manzanas" value="Manzanas">
+                        <label for="Manzanas"> Manzanas</label><br>
+                        <input type="checkbox" id="Predios" name="Predios" value="Predios">
+                        <label for="Predios">Predios</label><br>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#vectorSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Vector</a>
+                <ul class="collapse list-unstyled" id="vectorSubmenu">
+                    <li style="margin-left: 25px; margin-top: 25px;">
+                        <input type="text" id="fname" name="fname"><br>
+                    </li>
+                    <li style="margin-left: 75px;  margin-top: 25px;">
+                        <button type="button" class="btn btn-success">Primary</button>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+
+    </nav>
+
+    <!-- Page Content  -->
+    <div id="content">
+        <button type="button" id="sidebarCollapse" class="btn btn-info">
+        <i class="fas fa-align-left"></i>
+        
+    </button>
+        <!-- 
+      AQUI VA EL MAPA
+      -->
+
+    </div>
+</div>
