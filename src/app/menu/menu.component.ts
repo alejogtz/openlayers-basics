@@ -36,4 +36,9 @@ export class MenuComponent implements OnInit {
     this.myMap.getMapService().searchAndZoomToProperty(cta_orig);
   }
 
+  handleClickMeasureButton(type: string): void {
+    this.myMap.getMapService().addInteraction(type);
+    console.log('In progress:', type);
+  }
+
 }
