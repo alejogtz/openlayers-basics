@@ -12,6 +12,8 @@ export class MapComponent implements AfterViewInit {
 
   @ViewChild('map') containerMap: ElementRef;
 
+  DEFAULT_BASE_LAYER = 1;
+
   constructor(private mapFacade: MapService) { }
 
   ngAfterViewInit(): void {
@@ -20,9 +22,12 @@ export class MapComponent implements AfterViewInit {
 
     this.mapFacade.buildMap();
 
-    this.mapFacade.setVisibleBaseLayer(1);
+    this.mapFacade.setVisibleBaseLayer(this.DEFAULT_BASE_LAYER);
+  }
 
-    this.mapFacade.searchAndZoomToProperty('1005006006');
+  // Refactor
+  public getMapService(): MapService {
+    return this.mapFacade;
   }
 
 

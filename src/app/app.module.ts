@@ -9,12 +9,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSliderModule } from '@angular/material/slider';
 import { MapService } from './ol/components/map/map.service';
-
+import { MenuComponent } from './menu/menu.component';
 import { HttpClientModule } from '@angular/common/http';
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent,
+    MapComponent,MenuComponent
   ],
   imports: [
     BrowserModule,

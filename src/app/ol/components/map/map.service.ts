@@ -21,6 +21,9 @@ import { Feature } from 'ol';
 import Geometry from 'ol/geom/Geometry';
 import { Extent } from 'ol/extent';
 
+import ImageLayer from 'ol/layer/Image';
+import ImageWMS from 'ol/source/ImageWMS';
+
 @Injectable()
 export class MapService {
 
@@ -87,7 +90,7 @@ export class MapService {
         stamen.setVisible(false);
 
         // Tile Layers from SUAC
-        let localities_source = new TileWMS({
+        let localities_source = new ImageWMS({
             url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
             params: {
                 LAYERS: 'GDB08:localidades', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
@@ -112,7 +115,7 @@ export class MapService {
             serverType: 'geoserver',
         });
 
-        let localities_layer = new TileLayer({ source: localities_source });
+        let localities_layer = new ImageLayer({ source: localities_source });
         let blocks_layer = new TileLayer({ source: blocks_source });
         let properties_layer = new TileLayer({ source: properties_source });
 
@@ -169,7 +172,6 @@ export class MapService {
                 (feature: Feature<Geometry>, index: number, features: Feature<Geometry>[]) => {
                     this.propertyVectorSource.addFeature(feature);
 
-                    console.log(response);
                 });
 
             // Zoom to property
