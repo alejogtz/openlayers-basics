@@ -8,8 +8,7 @@
         <ul class="list-unstyled components">
 
             <li>
-                <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle"
-                    aria-controls="collapse30" data-parent="#accordionEx5">Layers</a>
+                <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="true" class="dropdown-toggle" aria-controls="collapse30" data-parent="#accordionEx5">Layers</a>
                 <ul class="collapse list-unstyled" id="homeSubmenu">
                     <li style="margin-left: 50px;">
                         <input type="radio" checked class="OSM" name="gender" value="OSM" (change)="handleVisibleBaseLayer(0)">
@@ -25,10 +24,27 @@
                 <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Capas</a>
                 <ul class="collapse list-unstyled" id="pageSubmenu">
                     <li style="margin-left: 50px;">
+                        <input type="checkbox" id="basemap" name="basemap" checked value="Mapa Base" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="basemap"> Mapa Base</label><br>
+
+                        <input type="checkbox" id="zonacatastral" name="zonacatastral" checked value="Zona Catastral" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="zonacatastral"> Zona Catastral</label><br>
+
+                        <input type="checkbox" id="localidad" name="localidad" checked value="localidad" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="localidad"> Localidad</label><br>
+
+                        <input type="checkbox" id="sectores" name="sectores" checked value="Sectores" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="sectores"> Sectores</label><br>
+
+                        <input type="checkbox" id="asentamientos" name="asentamientos" checked value="Asentamientos" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="asentamientos"> Asentamientos</label><br>
+
                         <input type="checkbox" id="Vialidad" name="Vialidad" checked value="Vialidad" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
                         <label for="Vialidad"> Vialidad</label><br>
+
                         <input type="checkbox" id="Manzanas" name="Manzanas" checked value="Manzanas" (change)='handleCheckedOverlayLayers($event)'>
                         <label for="Manzanas"> Manzanas</label><br>
+
                         <input type="checkbox" id="Predios" name="Predios" checked value="Predios" (change)='handleCheckedOverlayLayers($event)'>
                         <label for="Predios">Predios</label><br>
                     </li>
@@ -57,7 +73,24 @@
                         </select>
                     </li>
                     <li style="margin-left: 75px;  margin-top: 25px;">
-                        <button type="button" class="btn btn-success" (click)='handleClickMeasureButton(type.value)'>Primary</button>
+                        <button type="button" class="btn btn-success" (click)='handleClickMeasureButton(type.value)'>Trazar</button>
+                    </li>
+                    <!-- <li style="margin-left: 75px;  margin-top: 25px;">
+                        <button type="button" class="btn btn-success" (click)='BackClickButton()'>Regresar</button>
+                    </li>
+                    <li style="margin-left: 75px;  margin-top: 25px;">
+                        <button type="button" class="btn btn-success" (click)='NextClickButton()'>Siguiente</button>
+                    </li> -->
+                </ul>
+            </li>
+            <li>
+                <a href="#ToolSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Tool Options</a>
+                <ul class="collapse list-unstyled" id="ToolSubmenu">
+                    <li style="margin-left: 75px; margin-top: 25px;">
+                        <button type="button" class="btn btn-success" (click)='NextClickButton()'>Siguiente</button>
+                    </li>
+                    <li style="margin-left: 75px;  margin-top: 25px;">
+                        <button type="button" class="btn btn-success" (click)='BackClickButton()'>Regresar</button>
                     </li>
                 </ul>
             </li>
@@ -70,14 +103,14 @@
     <div id="content">
         <button type="button" id="sidebarCollapse" class="btn btn-info">
             <i class="fas fa-align-left"></i>
-
         </button>
         <!-- 
       AQUI VA EL MAPA
       -->
-      <!-- <ng-content></ng-content> -->
+        <!-- <ng-content></ng-content> -->
 
-      <app-map #mymap></app-map>
+        <app-map #mymap></app-map>
+
 
     </div>
 </div>

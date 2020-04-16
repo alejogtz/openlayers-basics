@@ -34,6 +34,11 @@ import { unByKey } from 'ol/Observable';
 import OverlayPositioning from 'ol/OverlayPositioning';
 import { Coordinate } from 'ol/coordinate';
 
+import {FullScreen} from 'ol/control';
+import { DragRotateAndZoom} from 'ol/interaction';
+
+import { Size } from 'ol/size';
+
 @Injectable()
 export class MapService {
 
@@ -41,7 +46,7 @@ export class MapService {
     private view: View;
 
     private tileBaseLayers: LayerGroup;
-    private tileLayersFromSuac: LayerGroup;
+    private layers: LayerGroup;
 
     // Searching Properties
     private propertyVectorLayer: VectorLayer;
@@ -60,7 +65,9 @@ export class MapService {
     helpTooltipElement: HTMLDivElement;
     helpTooltip: Overlay;
 
-
+    public nav_his: Movement[];
+    size = 0;
+    undo_redo = false;
     // Constants
     MAX_ZOOM_FIT_VIEW = 18;
 
@@ -71,6 +78,7 @@ export class MapService {
 
     constructor(private http: HttpClient) {
         this.instance = new Map({});
+        this.nav_his = new Array<Movement>();
     }
 
     buildMap(): void {
@@ -83,8 +91,8 @@ export class MapService {
 
         // Layers Base y Overlay
         this.initTileLayers();
-        this.instance.addLayer(this.tileBaseLayers);
-        this.instance.addLayer(this.tileLayersFromSuac);
+        this.instance.addLayer(this.layers);
+
 
         // Buscar Predio
         this.initVectorLayers();
@@ -94,7 +102,9 @@ export class MapService {
         this.initInteraction();
         this.instance.addLayer(this.measureLayer);
 
-
+        this.instance.addControl(new FullScreen);
+        this.instance.addInteraction(new DragRotateAndZoom);
+        this.InitHistory();
     }
 
 
@@ -115,7 +125,16 @@ export class MapService {
         osm_humanitarian.setVisible(false);
         stamen.setVisible(false);
 
-        // Tile Layers from SUAC
+        // Tile Layers from SUAC GDB08:vialidades
+
+        let zones_source = new ImageWMS({
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            params: {
+                LAYERS: 'GDB08:zonas', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
+            },
+            serverType: 'geoserver',
+        });
+
         let localities_source = new ImageWMS({
             url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
             params: {
@@ -124,7 +143,33 @@ export class MapService {
             serverType: 'geoserver',
         });
 
-        let blocks_source = new TileWMS({
+        let sectors_source = new ImageWMS({
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            params: {
+                LAYERS: 'GDB08:sectores', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
+            },
+            serverType: 'geoserver',
+        });
+
+        // Asentamientos
+        let township_source = new ImageWMS({
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            params: {
+                LAYERS: 'GDB08:asentamientos', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
+            },
+            serverType: 'geoserver',
+        });
+
+
+        let roads_source = new ImageWMS({
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            params: {
+                LAYERS: 'GDB08:vialidades', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
+            },
+            serverType: 'geoserver',
+        });
+
+        let blocks_source = new ImageWMS({
             url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
             params: {
                 LAYERS: 'GDB08:manzanas', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
@@ -141,11 +186,17 @@ export class MapService {
             serverType: 'geoserver',
         });
 
-        let localities_layer = new ImageLayer({ source: localities_source });
-        let blocks_layer = new TileLayer({ source: blocks_source });
-        let properties_layer = new TileLayer({ source: properties_source });
 
-        this.tileLayersFromSuac = new LayerGroup({ layers: [localities_layer, blocks_layer, properties_layer] });
+        let zones_layer = new ImageLayer({ source: zones_source });
+        let localities_layer = new ImageLayer({ source: localities_source });
+        let sectors_layer = new ImageLayer({ source: sectors_source });
+        let township_layer = new ImageLayer({ source: township_source });
+        let roads_layer = new ImageLayer({ source: roads_source });
+        let blocks_layer = new ImageLayer({ source: blocks_source });
+        let properties_layer = new TileLayer({ source: properties_source });
+        /** Misiing Construcciones */
+        this.layers = new LayerGroup({ layers: [ this.tileBaseLayers , zones_layer, localities_layer, sectors_layer,township_layer,
+             roads_layer, blocks_layer, properties_layer] });
 
 
 
@@ -224,9 +275,9 @@ export class MapService {
     }
 
     toggleVisibleSUACLayer(position: number): void {
-        let isVisible = this.tileLayersFromSuac.getLayers().getArray()[position].getVisible();
+        let isVisible = this.layers.getLayers().getArray()[position].getVisible();
 
-        this.tileLayersFromSuac.getLayers().getArray()[position].setVisible(!isVisible);
+        this.layers.getLayers().getArray()[position].setVisible(!isVisible);
     }
 
     // Interactions
@@ -442,6 +493,60 @@ export class MapService {
         });
         this.instance.addOverlay(this.measureTooltip);
     }
+// ---------------------------------[INICIO]Historial de navegacion------------------------------
+     
+    InitHistory(){
+        let move:Movement;
+        this.instance.on('moveend',  () => {
+            if (this.undo_redo === false) {
+                move = {
+                    extent: this.instance.getView().calculateExtent(this.instance.getSize()),
+                    size: this.instance.getSize(),
+                    zoom: this.instance.getView().getZoom()
+                };
+                this.nav_his.push(move);
+                this.size = this.size + 1;
+            }
+        });
+
+    }
+// ---------------------------------[FIN]Historial de navegacion------------------------------
+
+BackControl(){
+    
+        if (this.size > 0) {
+            this.undo_redo = true;
+            console.log("Back"+this.size);
+            this.instance.getView().fit(this.nav_his[this.size - 1].extent, {size : this.nav_his[this.size - 1].size} );
+            this.instance.getView().setZoom(this.nav_his[this.size - 1].zoom);
+            setTimeout( () => {
+                this.undo_redo = false;
+            }, 360);
+            this.size = this.size - 1;
+        }
+   
+
+}
+
+NextMoveControl(){
+    
+        if (this.size < (this.nav_his.length -1) ) {
+            this.undo_redo = true;
+            this.instance.getView().fit(this.nav_his[this.size + 1].extent, {size : this.nav_his[this.size + 1].size});
+            this.instance.getView().setZoom(this.nav_his[this.size + 1].zoom);
+            setTimeout(function () {
+                this.undo_redo = false;
+            }, 360);
+            this.size = this.size + 1;
+        }
+   
+}
+
+}
 
 
+interface Movement{
+    extent: Extent;
+    size: Size
+    zoom: number;
 }

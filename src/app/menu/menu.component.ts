@@ -21,8 +21,10 @@ export class MenuComponent implements OnInit {
 
   handleCheckedOverlayLayers($event) {
     // if ($event.target.checked === true){
-      let _value: string = $event.target.value;
-      let index: number = _value === 'Vialidad' ? 0 : _value === 'Manzanas' ? 1 : 2;
+      let _value: string = $event.target.id;
+      let overlayLayersNames = ['basemap', 'zonacatastral', 'localidad', 'sectores',  'asentamientos', 'Vialidad', 'Manzanas', 'Predios'];
+
+      let index: number = overlayLayersNames.indexOf(_value);
       this.myMap.getMapService().toggleVisibleSUACLayer(index);
     // }
   }
@@ -41,4 +43,14 @@ export class MenuComponent implements OnInit {
     console.log('In progress:', type);
   }
 
+  BackClickButton(){
+    this.myMap.getMapService().BackControl();
+    console.log('Regresar');
+  }
+
+  NextClickButton(){
+    this.myMap.getMapService().NextMoveControl();
+    console.log('Siguiente');
+  }
 }
+
