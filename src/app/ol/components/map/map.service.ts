@@ -34,6 +34,11 @@ import { unByKey } from 'ol/Observable';
 import OverlayPositioning from 'ol/OverlayPositioning';
 import { Coordinate } from 'ol/coordinate';
 
+import {FullScreen} from 'ol/control';
+import { DragRotateAndZoom} from 'ol/interaction';
+
+import { Size } from 'ol/size';
+
 @Injectable()
 export class MapService {
 
@@ -60,7 +65,9 @@ export class MapService {
     helpTooltipElement: HTMLDivElement;
     helpTooltip: Overlay;
 
-
+    public nav_his: Movement[];
+    size = 0;
+    undo_redo = false;
     // Constants
     MAX_ZOOM_FIT_VIEW = 18;
 
@@ -71,6 +78,7 @@ export class MapService {
 
     constructor(private http: HttpClient) {
         this.instance = new Map({});
+        this.nav_his = new Array<Movement>();
     }
 
     buildMap(): void {
@@ -94,7 +102,9 @@ export class MapService {
         this.initInteraction();
         this.instance.addLayer(this.measureLayer);
 
-
+        this.instance.addControl(new FullScreen);
+        this.instance.addInteraction(new DragRotateAndZoom);
+        this.InitHistory();
     }
 
 
@@ -442,6 +452,60 @@ export class MapService {
         });
         this.instance.addOverlay(this.measureTooltip);
     }
+// ---------------------------------[INICIO]Historial de navegacion------------------------------
+     
+    InitHistory(){
+        let move:Movement;
+        this.instance.on('moveend',  () => {
+            if (this.undo_redo === false) {
+                move = {
+                    extent: this.instance.getView().calculateExtent(this.instance.getSize()),
+                    size: this.instance.getSize(),
+                    zoom: this.instance.getView().getZoom()
+                };
+                this.nav_his.push(move);
+                this.size = this.size + 1;
+            }
+        });
+
+    }
+// ---------------------------------[FIN]Historial de navegacion------------------------------
+
+BackControl(){
+    
+        if (this.size > 0) {
+            this.undo_redo = true;
+            console.log("Back"+this.size);
+            this.instance.getView().fit(this.nav_his[this.size - 1].extent, {size : this.nav_his[this.size - 1].size} );
+            this.instance.getView().setZoom(this.nav_his[this.size - 1].zoom);
+            setTimeout( () => {
+                this.undo_redo = false;
+            }, 360);
+            this.size = this.size - 1;
+        }
+   
+
+}
+
+NextMoveControl(){
+    
+        if (this.size < (this.nav_his.length -1) ) {
+            this.undo_redo = true;
+            this.instance.getView().fit(this.nav_his[this.size + 1].extent, {size : this.nav_his[this.size + 1].size});
+            this.instance.getView().setZoom(this.nav_his[this.size + 1].zoom);
+            setTimeout(function () {
+                this.undo_redo = false;
+            }, 360);
+            this.size = this.size + 1;
+        }
+   
+}
+
+}
 
 
+interface Movement{
+    extent: Extent;
+    size: Size
+    zoom: number;
 }

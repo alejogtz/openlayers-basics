@@ -41,4 +41,14 @@ export class MenuComponent implements OnInit {
     console.log('In progress:', type);
   }
 
+  BackClickButton(){
+    this.myMap.getMapService().BackControl();
+    console.log('Regresar');
+  }
+
+  NextClickButton(){
+    this.myMap.getMapService().NextMoveControl();
+    console.log('Siguiente');
+  }
 }
+
