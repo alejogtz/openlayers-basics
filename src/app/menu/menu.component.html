@@ -24,10 +24,27 @@
                 <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Capas</a>
                 <ul class="collapse list-unstyled" id="pageSubmenu">
                     <li style="margin-left: 50px;">
+                        <input type="checkbox" id="basemap" name="basemap" checked value="Mapa Base" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="basemap"> Mapa Base</label><br>
+
+                        <input type="checkbox" id="zonacatastral" name="zonacatastral" checked value="Zona Catastral" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="zonacatastral"> Zona Catastral</label><br>
+
+                        <input type="checkbox" id="localidad" name="localidad" checked value="localidad" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="localidad"> Localidad</label><br>
+
+                        <input type="checkbox" id="sectores" name="sectores" checked value="Sectores" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="sectores"> Sectores</label><br>
+
+                        <input type="checkbox" id="asentamientos" name="asentamientos" checked value="Asentamientos" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
+                        <label for="asentamientos"> Asentamientos</label><br>
+
                         <input type="checkbox" id="Vialidad" name="Vialidad" checked value="Vialidad" setVisibleOverlay (change)='handleCheckedOverlayLayers($event)'>
                         <label for="Vialidad"> Vialidad</label><br>
+
                         <input type="checkbox" id="Manzanas" name="Manzanas" checked value="Manzanas" (change)='handleCheckedOverlayLayers($event)'>
                         <label for="Manzanas"> Manzanas</label><br>
+
                         <input type="checkbox" id="Predios" name="Predios" checked value="Predios" (change)='handleCheckedOverlayLayers($event)'>
                         <label for="Predios">Predios</label><br>
                     </li>
