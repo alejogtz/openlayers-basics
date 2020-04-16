@@ -11,6 +11,15 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MapService } from './ol/components/map/map.service';
 import { MenuComponent } from './menu/menu.component';
 import { HttpClientModule } from '@angular/common/http';
+
+import { PdfMakeWrapper } from 'pdfmake-wrapper';
+
+import pdfFonts from "pdfmake/build/vfs_fonts"; // fonts provided for pdfmake
+ 
+
+// Set the fonts to use
+PdfMakeWrapper.setFonts(pdfFonts);
+
 @NgModule({
   declarations: [
     AppComponent,
