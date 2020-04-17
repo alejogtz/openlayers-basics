@@ -52,5 +52,9 @@ export class MenuComponent implements OnInit {
     this.myMap.getMapService().NextMoveControl();
     console.log('Siguiente');
   }
+
+  Printer(){
+    this.myMap.getMapService().PrinterDocument();
+  }
 }
 

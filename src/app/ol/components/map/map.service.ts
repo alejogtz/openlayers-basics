@@ -38,7 +38,7 @@ import {FullScreen} from 'ol/control';
 import { DragRotateAndZoom} from 'ol/interaction';
 
 import { Size } from 'ol/size';
-
+import * as jsPDF from 'jspdf';
 @Injectable()
 export class MapService {
 
@@ -113,10 +113,10 @@ export class MapService {
         let osm_source = new OSM();
         let osm: Layer = new TileLayer({ source: osm_source });
 
-        let osm_humanitarian_source = new OSM({ url: 'http://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png' });
+        let osm_humanitarian_source = new OSM({ url: 'http://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png' ,crossOrigin: "anonymous"});
         let osm_humanitarian: Layer = new TileLayer({ source: osm_humanitarian_source, });
 
-        let stamen_source = new XYZ({ url: 'http://tile.stamen.com/watercolor/{z}/{x}/{y}.jpg' });
+        let stamen_source = new XYZ({ url: 'http://tile.stamen.com/watercolor/{z}/{x}/{y}.jpg' ,crossOrigin: "anonymous"});
         let stamen: Layer = new TileLayer({ source: stamen_source });
 
         this.tileBaseLayers = new LayerGroup({ layers: [osm, osm_humanitarian, stamen] });
@@ -128,7 +128,7 @@ export class MapService {
         // Tile Layers from SUAC GDB08:vialidades
 
         let zones_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:zonas', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -136,7 +136,7 @@ export class MapService {
         });
 
         let localities_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:localidades', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -144,7 +144,7 @@ export class MapService {
         });
 
         let sectors_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:sectores', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -153,7 +153,7 @@ export class MapService {
 
         // Asentamientos
         let township_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:asentamientos', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -162,7 +162,7 @@ export class MapService {
 
 
         let roads_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:vialidades', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -170,7 +170,7 @@ export class MapService {
         });
 
         let blocks_source = new ImageWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',
+            url: 'http://187.189.192.102:8080/geoserver/GDB08/wms',crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08:manzanas', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -179,7 +179,7 @@ export class MapService {
 
 
         let properties_source = new TileWMS({
-            url: 'http://187.189.192.102:8080/geoserver/GDB08011/wms',
+            url: 'http://187.189.192.102:8080/geoserver/GDB08011/wms',crossOrigin: "anonymous",
             params: {
                 LAYERS: 'GDB08011:p', VERSION: '1.1.1', FORMAT: 'image/png', TILED: 'true',
             },
@@ -540,6 +540,33 @@ NextMoveControl(){
             this.size = this.size + 1;
         }
    
+}
+
+PrinterDocument(){
+
+        let mapCanvas = document.createElement('canvas');
+        mapCanvas.width = 1000;
+        mapCanvas.height = 500;
+        let mapContext = mapCanvas.getContext('2d');
+
+
+        Array.prototype.forEach.call(document.querySelectorAll('.ol-layer canvas'), (canvas) => {
+            if (canvas.width > 0) {
+              var opacity = canvas.parentNode.style.opacity;
+              mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+              var transform = canvas.style.transform;
+              var matrix = transform.match(/^matrix\(([^\(]*)\)$/)[1].split(',').map(Number);
+              CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
+              mapContext.drawImage(canvas, 0, 0);
+            }
+          });
+
+
+        var doc = new jsPDF('landscape', 'pt', 'letter');
+        doc.addImage(mapCanvas.toDataURL('image/jpeg'), 'jpeg', 30, 50, 700, 500);
+        doc.save('mapa.pdf');
+   
+
 }
 
 }
