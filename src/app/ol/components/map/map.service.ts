@@ -39,6 +39,7 @@ import { DragRotateAndZoom} from 'ol/interaction';
 
 import { Size } from 'ol/size';
 import * as jsPDF from 'jspdf';
+
 @Injectable()
 export class MapService {
 

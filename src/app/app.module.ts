@@ -16,6 +16,9 @@ import { PdfMakeWrapper } from 'pdfmake-wrapper';
 
 import pdfFonts from "pdfmake/build/vfs_fonts"; // fonts provided for pdfmake
  
+import { AgmCoreModule } from '@agm/core';
+import { GoogleMapsComponent } from './google-maps/google-maps.component';
+
 
 // Set the fonts to use
 PdfMakeWrapper.setFonts(pdfFonts);
@@ -23,12 +26,16 @@ PdfMakeWrapper.setFonts(pdfFonts);
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent,MenuComponent
+    MapComponent,MenuComponent, GoogleMapsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    AgmCoreModule.forRoot({
+      apiKey: 'AIzaSyChg0ncJgZdqvTgkWiLTpaoT4WDx6w2b_Q',
+      libraries: ['places']
+    })
   ],
   providers: [MapService],
   bootstrap: [AppComponent]
